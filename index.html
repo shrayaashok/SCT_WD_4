@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lavender To-Do App</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #e8d4ff, #c3b1e1);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100vh;
+    }
+
+    .container {
+        margin-top: 40px;
+        background: white;
+        width: 90%;
+        max-width: 450px;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+        text-align: center;
+        color: #5a3e85;
+    }
+
+    .task-input {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    input, button {
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #a889cc;
+        font-size: 16px;
+    }
+
+    button {
+        background: #a47cd1;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #8a68b4;
+    }
+
+    .task {
+        background: #f4e8ff;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .task.completed {
+        text-decoration: line-through;
+        opacity: 0.6;
+    }
+
+    .task-info {
+        max-width: 70%;
+    }
+
+    .task-buttons button {
+        margin-left: 5px;
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .date {
+        font-size: 13px;
+        color: #6b5c82;
+        margin-top: 5px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Lavender To-Do App</h2>
+
+    <!-- Task Input -->
+    <div class="task-input">
+        <input type="text" id="taskText" placeholder="Enter task..." />
+        <input type="datetime-local" id="taskDate" />
+        <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <!-- Task List -->
+    <div id="taskList"></div>
+</div>
+
+<script>
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function displayTasks() {
+        const list = document.getElementById("taskList");
+        list.innerHTML = "";
+
+        tasks.forEach((task, index) => {
+            const div = document.createElement("div");
+            div.className = "task" + (task.completed ? " completed" : "");
+            
+            div.innerHTML = `
+                <div class="task-info">
+                    <strong>${task.text}</strong>
+                    <div class="date">${task.date ? "⏰ " + task.date : ""}</div>
+                </div>
+
+                <div class="task-buttons">
+                    <button onclick="toggleComplete(${index})">✔</button>
+                    <button onclick="editTask(${index})">✏</button>
+                    <button onclick="deleteTask(${index})">🗑</button>
+                </div>
+            `;
+
+            list.appendChild(div);
+        });
+    }
+
+    function addTask() {
+        const text = document.getElementById("taskText").value;
+        const date = document.getElementById("taskDate").value;
+
+        if (text === "") {
+            alert("Please enter a task");
+            return;
+        }
+
+        tasks.push({ text, date, completed: false });
+        saveTasks();
+        displayTasks();
+
+        document.getElementById("taskText").value = "";
+        document.getElementById("taskDate").value = "";
+    }
+
+    function toggleComplete(i) {
+        tasks[i].completed = !tasks[i].completed;
+        saveTasks();
+        displayTasks();
+    }
+
+    function editTask(i) {
+        const newText = prompt("Edit task:", tasks[i].text);
+        if (newText !== null && newText.trim() !== "") {
+            tasks[i].text = newText;
+        }
+
+        const newDate = prompt("Edit date & time (YYYY-MM-DD HH:MM):", tasks[i].date);
+        if (newDate !== null && newDate.trim() !== "") {
+            tasks[i].date = newDate;
+        }
+
+        saveTasks();
+        displayTasks();
+    }
+
+    function deleteTask(i) {
+        tasks.splice(i, 1);
+        saveTasks();
+        displayTasks();
+    }
+
+    displayTasks();
+</script>
+
+</body>
+</html>
